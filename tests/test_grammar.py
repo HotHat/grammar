@@ -19,11 +19,12 @@ class TestGrammar(unittest.TestCase):
         self.P1 = Product(self.n_e, CgfRule(self.n_t, self.n_e2))
         self.P2 = Product(self.n_e2, CgfRule(self.t_plus, self.n_t, self.n_e2), Epsilon())
         self.P3 = Product(self.n_t, CgfRule(self.n_f, self.n_t2))
-        self.P3.add(CgfRule(self.t_mul, self.n_f, self.n_t2))
-        self.P3.add(Epsilon())
-        self.P4 = Product(self.n_f, CgfRule(self.t_id), CgfRule(self.t_left_bracket, self.n_e, self.t_right_bracket))
+        self.P4 = Product(self.n_t2, CgfRule(self.t_mul, self.n_f, self.n_t2))
+        self.P4.add(Epsilon())
+        self.P5 = Product(self.n_f, CgfRule(self.t_id), CgfRule(self.t_left_bracket, self.n_e, self.t_right_bracket))
 
         self.grammar = Grammar(self.P1, self.P2, self.P3, self.P4)
+        self.grammar.add(self.P5)
 
     def test_node(self):
         print(self.t_plus)
@@ -40,3 +41,17 @@ class TestGrammar(unittest.TestCase):
 
     def test_grammar(self):
         print(self.grammar)
+
+    def test_get_non_terminal(self):
+        s = self.grammar.get_non_terminal()
+        for i in s:
+            print(i)
+
+    def test_get_terminal(self):
+        s = self.grammar.get_terminal()
+        for i in s:
+            print(i)
+
+    def test_first(self):
+        s = self.grammar.first2(self.n_e2)
+        print(s)

@@ -24,19 +24,21 @@ class NonTerminal(CgfNode):
 
 
 class CgfRule:
-    def __init__(self, *node: CgfNode):
-        self.node = node
+    def __init__(self, first: CgfNode, *nodes: CgfNode):
+        self.nodes = [first]
+        for i in nodes:
+            self.nodes.append(i)
 
     def __str__(self):
         st = ''
-        for i in self.node:
+        for i in self.nodes:
             st = "%s %s" % (st, i)
         return st
 
 
 class Epsilon(CgfRule):
     def __init__(self):
-        super().__init__()
+        super().__init__(Terminal('Є'))
 
     def __str__(self):
         return 'Epsilon'
@@ -63,28 +65,62 @@ class Product:
 
 class Grammar:
     def __init__(self, *products: Product):
-        self.products = []
+        self.products = {}
         for i in products:
-            self.products.append(i)
+            self.products[i.left] = i.right
 
     def add(self, *products: Product) -> None:
         for i in products:
-            self.products.append(i)
+            self.products[i.left] = i.right
 
     def get_non_terminal(self):
-        pass
+        sm = set()
+        for rhs in self.products.values():
+            for n in rhs:
+                for i in n.nodes:
+                    if type(i) == NonTerminal:
+                        sm.add(i)
+        s = self.products.keys()
+
+        if sm != s:
+            raise Exception('non terminal not match')
+
+        return s
 
     def get_terminal(self):
-        pass
+        s = set()
+        for rhs in self.products.values():
+            for n in rhs:
+                for i in n.nodes:
+                    if type(i) == Terminal:
+                        s.add(i)
+        return s
 
     def first(self):
         pass
+
+    def first2(self, t: NonTerminal):
+        s = set()
+        rules = self.products[t]
+        for rule in rules:
+            if type(rule) is Epsilon:
+                s.add(str(rule.nodes[0]))
+            else:
+                if type(rule.nodes[0]) is Terminal:
+                    s.add(str(rule.nodes[0]))
+                else:
+                    # TODO: first is non terminal
+                    pass
+        return s
 
     def follow(self):
         pass
 
     def __str__(self) -> str:
         st = ''
-        for i in self.products:
-            st = "%s %s \n" % (st, i)
+        for (k, v) in self.products.items():
+            sm = ''
+            for i in v:
+                sm = "%s %s |" % (sm, i)
+            st = st + "%s  -> %s \n" % (k, sm[:-1])
         return st
