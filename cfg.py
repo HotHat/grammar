@@ -119,19 +119,24 @@ class Grammar:
         product = self.products[t]
         for rule in product.right:
             if type(rule) is Epsilon:
-                s.add(rule.nodes[0])
+                s.add(rule)
             else:
                 if type(rule.nodes[0]) is Terminal:
                     s.add(rule.nodes[0])
                 else:
+                    through = True
                     for it in rule.nodes:
                         r = self.first2(it)
-                        print(id(Grammar.EPSILON))
+                        # print(id(Grammar.EPSILON))
                         r = r.difference({Grammar.EPSILON})
 
                         s = s.union(r)
                         if type(it) is Terminal or not self.products[it].have_epsilon():
+                            through = False
                             break
+                    if through:
+                        s.add(Grammar.EPSILON)
+
         return s
 
     def follow(self):
