@@ -43,15 +43,48 @@ class Epsilon(CgfRule):
 
 
 class Product:
-    def __init__(self, left: NonTerminal, right: CgfRule, *other: CgfRule):
+    def __init__(self, left: NonTerminal, right: CgfRule, *rules: CgfRule):
         self.left = left
         self.right = [right]
-        for i in other:
+        for i in rules:
             self.right.append(i)
 
-    def __str__(self):
+    def add(self, *rules: CgfRule) -> None:
+        for i in rules:
+            self.right.append(i)
+
+    def __str__(self) -> str:
         st = ''
         for i in self.right:
             st = "%s %s |" % (st, i)
         s = "%s -> %s" % (self.left, st)
         return s[:-2]
+
+
+class Grammar:
+    def __init__(self, *products: Product):
+        self.products = []
+        for i in products:
+            self.products.append(i)
+
+    def add(self, *products: Product) -> None:
+        for i in products:
+            self.products.append(i)
+
+    def get_non_terminal(self):
+        pass
+
+    def get_terminal(self):
+        pass
+
+    def first(self):
+        pass
+
+    def follow(self):
+        pass
+
+    def __str__(self) -> str:
+        st = ''
+        for i in self.products:
+            st = "%s %s \n" % (st, i)
+        return st
