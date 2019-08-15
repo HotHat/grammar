@@ -128,10 +128,11 @@ class Grammar:
                     for it in rule.nodes:
                         r = self.first2(it)
                         # print(id(Grammar.EPSILON))
-                        r = r.difference({Grammar.EPSILON})
-
-                        s = s.union(r)
-                        if type(it) is Terminal or not self.products[it].have_epsilon():
+                        if Grammar.EPSILON in r:
+                            r = r.difference({Grammar.EPSILON})
+                            s = s.union(r)
+                        else:
+                            s = s.union(r)
                             through = False
                             break
                     if through:

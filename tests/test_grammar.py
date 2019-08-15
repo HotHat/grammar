@@ -54,13 +54,13 @@ class TestGrammar(unittest.TestCase):
 
     def test_first(self):
         s = self.grammar.first2(self.n_e)
-        print('FIRST(%s) = %s' % (self.n_e, s))
+        print('FIRST(%s) = %s' % (self.n_e, list(map(lambda x: str(x), s))))
         s = self.grammar.first2(self.n_e2)
-        print('FIRST(%s) = %s' % (self.n_e2, s))
+        print('FIRST(%s) = %s' % (self.n_e2, list(map(lambda x: str(x), s))))
         s = self.grammar.first2(self.n_t)
-        print('FIRST(%s) = %s' % (self.n_t, s))
+        print('FIRST(%s) = %s' % (self.n_t, list(map(lambda x: str(x), s))))
         s = self.grammar.first2(self.n_t2)
-        print('FIRST(%s) = %s' % (self.n_t2, s))
+        print('FIRST(%s) = %s' % (self.n_t2, list(map(lambda x: str(x), s))))
         s = self.grammar.first2(self.n_f)
-        print('FIRST(%s) = %s' % (self.n_f, s))
+        print('FIRST(%s) = %s' % (self.n_f, list(map(lambda x: str(x), s))))
 
