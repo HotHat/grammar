@@ -1,4 +1,5 @@
 
+
 class CgfNode:
     def __init__(self, name):
         self.name = name
@@ -37,6 +38,8 @@ class CgfRule:
 
 
 class Epsilon(CgfRule):
+    instance = None
+
     def __init__(self):
         super().__init__(Terminal('Є'))
 
@@ -55,6 +58,13 @@ class Product:
         for i in rules:
             self.right.append(i)
 
+    def have_epsilon(self):
+        for i in self.right:
+            # print(type(i))
+            if type(i) is Epsilon:
+                return True
+        return False
+
     def __str__(self) -> str:
         st = ''
         for i in self.right:
@@ -64,33 +74,35 @@ class Product:
 
 
 class Grammar:
+    EPSILON = Epsilon()
+
     def __init__(self, *products: Product):
         self.products = {}
         for i in products:
-            self.products[i.left] = i.right
+            self.products[i.left] = i
 
     def add(self, *products: Product) -> None:
         for i in products:
-            self.products[i.left] = i.right
+            self.products[i.left] = i
 
     def get_non_terminal(self):
-        sm = set()
-        for rhs in self.products.values():
-            for n in rhs:
-                for i in n.nodes:
-                    if type(i) == NonTerminal:
-                        sm.add(i)
+        # sm = set()
+        # for rhs in self.products.values():
+        #     for n in rhs:
+        #         for i in n.nodes:
+        #             if type(i) == NonTerminal:
+        #                 sm.add(i)
         s = self.products.keys()
 
-        if sm != s:
-            raise Exception('non terminal not match')
+        # if sm != s:
+        #     raise Exception('non terminal not match')
 
         return s
 
     def get_terminal(self):
         s = set()
         for rhs in self.products.values():
-            for n in rhs:
+            for n in rhs.right:
                 for i in n.nodes:
                     if type(i) == Terminal:
                         s.add(i)
@@ -99,18 +111,27 @@ class Grammar:
     def first(self):
         pass
 
-    def first2(self, t: NonTerminal):
+    def first2(self, t: CgfNode):
+        if type(t) is Terminal:
+            return {t}
+
         s = set()
-        rules = self.products[t]
-        for rule in rules:
+        product = self.products[t]
+        for rule in product.right:
             if type(rule) is Epsilon:
-                s.add(str(rule.nodes[0]))
+                s.add(rule.nodes[0])
             else:
                 if type(rule.nodes[0]) is Terminal:
-                    s.add(str(rule.nodes[0]))
+                    s.add(rule.nodes[0])
                 else:
-                    # TODO: first is non terminal
-                    pass
+                    for it in rule.nodes:
+                        r = self.first2(it)
+                        print(id(Grammar.EPSILON))
+                        r = r.difference({Grammar.EPSILON})
+
+                        s = s.union(r)
+                        if type(it) is Terminal or not self.products[it].have_epsilon():
+                            break
         return s
 
     def follow(self):
@@ -120,7 +141,7 @@ class Grammar:
         st = ''
         for (k, v) in self.products.items():
             sm = ''
-            for i in v:
+            for i in v.right:
                 sm = "%s %s |" % (sm, i)
             st = st + "%s  -> %s \n" % (k, sm[:-1])
         return st
