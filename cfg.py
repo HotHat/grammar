@@ -46,6 +46,14 @@ class Epsilon(CgfRule):
     def __str__(self):
         return 'Epsilon'
 
+    def __hash__(self):
+        return hash('__EPSILON__')
+
+    def __eq__(self, other):
+        if type(other) is Epsilon:
+            return True
+        return False
+
 
 class Product:
     def __init__(self, left: NonTerminal, right: CgfRule, *rules: CgfRule):
@@ -108,10 +116,15 @@ class Grammar:
                         s.add(i)
         return s
 
-    def first(self):
-        pass
-
-    def first2(self, t: CgfNode):
+    def first(self, t: CgfNode):
+        """
+        1. If x is a terminal, then FIRST(x) = { ‘x’ }
+        2. If x-> Є, is a production rule, then add Є to FIRST(x).
+        3. If X->Y1 Y2 Y3….Yn is a production,
+           1. FIRST(X) = FIRST(Y1)
+           2. If FIRST(Y1) contains Є then FIRST(X) = { FIRST(Y1) – Є } U { FIRST(Y2) }
+           3. If FIRST (Yi) contains Є for all i = 1 to n, then add Є to FIRST(X).
+        """
         if type(t) is Terminal:
             return {t}
 
@@ -126,7 +139,7 @@ class Grammar:
                 else:
                     through = True
                     for it in rule.nodes:
-                        r = self.first2(it)
+                        r = self.first(it)
                         # print(id(Grammar.EPSILON))
                         if Grammar.EPSILON in r:
                             r = r.difference({Grammar.EPSILON})
@@ -140,8 +153,36 @@ class Grammar:
 
         return s
 
-    def follow(self):
-        pass
+    def follow(self, t: NonTerminal):
+        """
+        1) FOLLOW(S) = { $ }   // where S is the starting Non-Terminal
+        2) If A -> pBq is a production, where p, B and q are any grammar symbols,
+           then everything in FIRST(q)  except ? is in FOLLOW(B.
+        3) If A->pB is a production, then everything in FOLLOW(A) is in FOLLOW(B).
+        4) If A->pBq is a production and FIRST(q) contains ?,
+           then FOLLOW(B) contains { FIRST(q) – ? } U FOLLOW(A)
+        :param t:
+        :return:
+        """
+        s = set()
+        if t.start_node:
+            s.add((1, Terminal('$')))
+
+        for k, v in self.products.items():
+            for n, rules in enumerate(v.right):
+                # find the node
+                for idx, item in enumerate(rules.nodes):
+                    if t is item:
+                        if idx < len(rules.nodes) - 1:
+                            first = self.first(rules.nodes[idx+1])
+                            if Grammar.EPSILON in first:
+                                s.add((3, k))
+
+                            s.add((2, rules.nodes[idx+1]))
+                        else:
+                            if k is not t:
+                                s.add((3, k))
+        return s
 
     def __str__(self) -> str:
         st = ''

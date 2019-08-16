@@ -44,13 +44,13 @@ class TestGrammar2(unittest.TestCase):
             print(i)
 
     def test_first(self):
-        s = self.grammar.first2(self.n_s)
+        s = self.grammar.first(self.n_s)
         print('FIRST(%s) = %s' % (self.n_s, list(map(lambda x: str(x), s))))
-        s = self.grammar.first2(self.n_a)
+        s = self.grammar.first(self.n_a)
         print('FIRST(%s) = %s' % (self.n_a, list(map(lambda x: str(x), s))))
-        s = self.grammar.first2(self.n_b)
+        s = self.grammar.first(self.n_b)
         print('FIRST(%s) = %s' % (self.n_b, list(map(lambda x: str(x), s))))
-        s = self.grammar.first2(self.n_c)
+        s = self.grammar.first(self.n_c)
         print('FIRST(%s) = %s' % (self.n_c, list(map(lambda x: str(x), s))))
 
     def test_epsilon(self):
