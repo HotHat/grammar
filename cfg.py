@@ -89,6 +89,9 @@ class Grammar:
         for i in products:
             self.products[i.left] = i
 
+        self.first_set = {}
+        self.follow_set = {}
+
     def add(self, *products: Product) -> None:
         for i in products:
             self.products[i.left] = i
@@ -116,7 +119,7 @@ class Grammar:
                         s.add(i)
         return s
 
-    def first(self, t: CgfNode):
+    def first_non_terminal(self, t: CgfNode):
         """
         1. If x is a terminal, then FIRST(x) = { ‘x’ }
         2. If x-> Є, is a production rule, then add Є to FIRST(x).
@@ -139,7 +142,12 @@ class Grammar:
                 else:
                     through = True
                     for it in rule.nodes:
-                        r = self.first(it)
+                        # is non terminal have cal first
+                        if it in self.first_set:
+                            r = self.first_set[it]
+                        else:
+                            r = self.first_non_terminal(it)
+
                         # print(id(Grammar.EPSILON))
                         if Grammar.EPSILON in r:
                             r = r.difference({Grammar.EPSILON})
@@ -150,8 +158,19 @@ class Grammar:
                             break
                     if through:
                         s.add(Grammar.EPSILON)
+        # set the first set
+        if type(t) is NonTerminal and t not in self.first_set:
+            self.first_set[t] = s
 
         return s
+
+    def first(self):
+        non_terminal = self.get_non_terminal()
+
+        for i in non_terminal:
+            self.first_non_terminal(i)
+
+        return self.first_set
 
     def follow(self, t: NonTerminal):
         """
@@ -161,8 +180,6 @@ class Grammar:
         3) If A->pB is a production, then everything in FOLLOW(A) is in FOLLOW(B).
         4) If A->pBq is a production and FIRST(q) contains ?,
            then FOLLOW(B) contains { FIRST(q) – ? } U FOLLOW(A)
-        :param t:
-        :return:
         """
         s = set()
         if t.start_node:
@@ -174,7 +191,7 @@ class Grammar:
                 for idx, item in enumerate(rules.nodes):
                     if t is item:
                         if idx < len(rules.nodes) - 1:
-                            first = self.first(rules.nodes[idx+1])
+                            first = self.first_non_terminal(rules.nodes[idx + 1])
                             if Grammar.EPSILON in first:
                                 s.add((3, k))
 

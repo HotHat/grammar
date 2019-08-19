@@ -53,15 +53,15 @@ class TestGrammar(unittest.TestCase):
             print(i)
 
     def test_first(self):
-        s = self.grammar.first(self.n_e)
+        s = self.grammar.first_non_terminal(self.n_e)
         print('FIRST(%s) = %s' % (self.n_e, list(map(lambda x: str(x), s))))
-        s = self.grammar.first(self.n_e2)
+        s = self.grammar.first_non_terminal(self.n_e2)
         print('FIRST(%s) = %s' % (self.n_e2, list(map(lambda x: str(x), s))))
-        s = self.grammar.first(self.n_t)
+        s = self.grammar.first_non_terminal(self.n_t)
         print('FIRST(%s) = %s' % (self.n_t, list(map(lambda x: str(x), s))))
-        s = self.grammar.first(self.n_t2)
+        s = self.grammar.first_non_terminal(self.n_t2)
         print('FIRST(%s) = %s' % (self.n_t2, list(map(lambda x: str(x), s))))
-        s = self.grammar.first(self.n_f)
+        s = self.grammar.first_non_terminal(self.n_f)
         print('FIRST(%s) = %s' % (self.n_f, list(map(lambda x: str(x), s))))
 
     def test_follow(self):
@@ -84,3 +84,7 @@ class TestGrammar(unittest.TestCase):
         else:
             print('False')
 
+    def test_first2(self):
+        d = self.grammar.first()
+        for k, v in d.items():
+            print('FOLLOW(%s) =  %s)' % (k, list(map(lambda x: str(x), v))))
